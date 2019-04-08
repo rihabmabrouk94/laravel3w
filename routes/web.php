@@ -16,7 +16,7 @@ Route::middleware(['access'])->group(function () {
 	});
 	Route::post('/add', 'ClassroomController@handleAddClassroom')->name('handleAddClassroom');
 	Route::get('/delete/{id}', 'ClassroomController@handleDeleteClassroom')->name('handleDeleteClassroom');
-	Route::get('/list', 'ClassroomController@showClassrooms')->name('showClassrooms');
+	Route::get('/list/{computers?}', 'ClassroomController@showClassrooms')->name('showClassrooms');
 	Route::get('/show/{id}', 'ClassroomController@handleShowClassroom')->name('handleShowClassroom');
 	Route::post('/update', 'ClassroomController@handleUpdate')->name('handleUpdate');
 
@@ -30,7 +30,9 @@ Route::middleware(['access'])->group(function () {
 Route::get('/user/login', 'ClassroomController@showLogin')->name('showLogin');
 
 Route::post('/user/login', 'ClassroomController@handleLogin')->name('handleLogin');
-
+Route::post('/student', 'ClassroomController@handleAddStudent')->name('handleAddStudent');
+Route::get('/student', 'ClassroomController@showAddStudent')->name('showAddStudent');
+Route::get('/deleteImage/{id}', 'ClassroomController@deleteImage')->name('deleteImage');
 
 
 

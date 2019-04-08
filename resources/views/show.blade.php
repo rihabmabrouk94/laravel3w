@@ -1,3 +1,10 @@
+@extends('template.layout')
+@section('header')
+@include('template.inc.header',['title'=>'Bonjour!'])
+
+@endsection
+
+@section('content')
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -111,4 +118,8 @@
             </div>
         </div>
     </body>
+    @endsection
+@section('footer')
+@include('template.inc.footer')
+@endsection
 </html>

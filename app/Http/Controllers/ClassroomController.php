@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+
 use  Session;
 use  Validator;
 
@@ -11,6 +12,8 @@ use App\classroom;
 use App\Students;
 use App\User;
 use Auth;
+use Intervention\Image\Facades\Image;
+use File;
 
 class ClassroomController extends Controller
 {
@@ -62,12 +65,14 @@ class ClassroomController extends Controller
 
     }
     
-  public function showClassrooms()
+  public function showClassrooms($computers=0)
     {
     	//dd(Students::find(1)->with('classroom')->first());
     	//dd(classroom::find(18)->with('students')->first());
 
-    	$cl=classroom::withCount('students')->get();
+    	$cl=classroom::withCount('students')->when($computers ,function($query) use ($computers){
+    		$query->where('computers','>=',$computers);
+    	})->get();
 
     	return view('list',['cl'=>$cl]);
 
@@ -134,33 +139,68 @@ class ClassroomController extends Controller
     }
     public function showStudents($id)
     {
-    	if ($data = @file_get_contents("http://api.apixu.com/v1/current.json?key=fc8ed0be1ed24dcb885144051190404&q=ny"))
-   {
-       $json = json_decode($data, true);
-       $latitude = $json['current']['condition']['icon'];
-      $longitude = $json['location']['tz_id'];
-   }
+    	
 
 //dd($longitude,$latitude);
-    	$cl=classroom::find($id);
-    	if ($cl and $cl->students()->exists())
-    	{
+    	$cl=classroom::whereId($id)->whereHas('students',
+function($age){
+	$age->where('age','>',20);
+}
+    )->first();
+    	dd($cl->students);
      	return view('showstudents',['cl'=>$cl,'latitude'=>$latitude]);
-     	}
-     else
-     {
-     	return'Ereur';
-     }
-		
+     
     }
     public function handleDeletestudent($id)
     {
 
-    students::whereId($id)->delete();
+    students::whereId($id)->forceDelete();
     
     return back()->withErrors(['La suppression a été effectuée', 'test']);
 
     }
+   public function showAddStudent()
+   {
+       $classroom = Classroom::all();
+           //Sdd($classroom);
+       return view('students', [
+           'class' => $classroom
+           
+               ]);
+   }
+
+   public function handleAddStudent()
+   {
+       $data = Input::all();
+
+       
+       
+       $photo = 'photo-' . str_random(5) . time() . '.' . $data['photo']->getClientOriginalExtension();
+          $fullImagePath = public_path('storage/' . $photo);
+          Image::make($data['photo']->getRealPath())->blur(5)->save($fullImagePath);
+          $photoPath = 'storage/' . $photo;
+
+       $cl = Students::create(['name' =>$data['name'], 'age' =>$data['age'], 'image'=>$photoPath, 'classroom_id'=>$data['classroom_id']]);
+
+       
+   }
+   public function deleteImage($id)
+   {
+   	$cl=students::find($id);
+   	if ($cl) {
+   		if ($cl->image !='' or $cl->image !=null) {
+   			File:: delete(public_path('/' . $cl->image));
+   			$cl->image='';
+   			$cl->save();
+   			 return back()->withErrors(['La suppression a été effectuée']);
+
+   		}
+   		else{
+   			return 'no';
+   		}
+   	}
+   	
+   }
 
 
 }

@@ -15,7 +15,7 @@ return [
 
     'previous' => '&laquo; Previous',
     'next' => 'Next &raquo;',
-    'hello'=>'hello :name',
-     'voiture'=> 'you have one car | you have many cars'
+    'hello'=>'Bienvenue :name',
+    'voiture'=> 'vous avez une voiture | vous avez des voitures'
 
 ];
